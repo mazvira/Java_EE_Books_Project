@@ -4,15 +4,13 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 
-import java.util.List;
-
 @SpringBootApplication
-public class DemoApplication {
+public class BookApplication {
 
     public static void main(String[] args) {
 
-        ApplicationContext applicationContext = SpringApplication.run(DemoApplication.class, args);
-        BookService bookService = applicationContext.getBean(BookService.class);
+        ApplicationContext applicationContext = SpringApplication.run(BookApplication.class, args);
+        BookRepository bookService = applicationContext.getBean(BookRepository.class);
 
       /*  Book book1 = bookService.createBook("NB132564", "Pollyanna", "Eleanor Porter");
         Book book2 = bookService.createBook("RE134525", "The Adventures of Tom Sawyer", "Mark Twain");

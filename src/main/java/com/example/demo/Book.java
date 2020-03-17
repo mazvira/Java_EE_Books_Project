@@ -11,10 +11,6 @@ import javax.persistence.*;
 @NoArgsConstructor
 @Getter
 @Setter
-@NamedQueries(value = {
-        @NamedQuery(query = "SELECT book FROM Book book WHERE book.id = :id", name = Book.FIND_BY_ID),
-        @NamedQuery(query = "SELECT book FROM Book book WHERE book.author = :author", name = Book.FIND_BY_AUTHOR),
-})
 class Book {
     @Id
     @Column(name = "id")
@@ -27,7 +23,4 @@ class Book {
     @Column(name = "author")
     private String author;
 
-
-    public static final String FIND_BY_ID = "Book.FIND_BY_ID";
-    public static final String FIND_BY_AUTHOR = "Book.FIND_BY_AUTHOR";
 }

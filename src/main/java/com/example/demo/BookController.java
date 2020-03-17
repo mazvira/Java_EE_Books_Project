@@ -7,13 +7,13 @@ import org.springframework.ui.Model;
 
 @Controller
 @RequiredArgsConstructor
-public class IndexController {
+public class BookController {
     private final BookService bookService;
 
     @RequestMapping({"/", ""})
     public String index(Model model) {
-        if (bookService.getAllBooks().size() > 0) {
-            model.addAttribute("books", bookService.getAllBooks());
+        if (bookService.findAllBooks().size() > 0) {
+            model.addAttribute("books", bookService.findAllBooks());
             return "bookList";
         } else {
             return "bookCreate";
@@ -27,13 +27,19 @@ public class IndexController {
 
     @RequestMapping(value = "/add-book", method = RequestMethod.POST)
     public String addNewBook(@ModelAttribute Book book) {
-        bookService.createBook(book.getIsbn(), book.getTitle(), book.getAuthor());
+        bookService.saveBook(book.getIsbn(), book.getTitle(), book.getAuthor());
         return "redirect:/books-list";
     }
 
     @RequestMapping(value = "/books-list", method = RequestMethod.GET)
     public String booksList(Model model) {
-        model.addAttribute("books", bookService.getAllBooks());
+        model.addAttribute("books", bookService.findAllBooks());
+        return "bookList";
+    }
+
+    @RequestMapping(value = "/book/{title}/{name}", method = RequestMethod.GET)
+    public String findByTitleOrIsbn(@PathVariable("title") String title, @PathVariable("name") String name, Model model) {
+        model.addAttribute("books", bookService.findByTitleOrIsbn(title, name));
         return "bookList";
     }
 
@@ -48,4 +54,5 @@ public class IndexController {
         model.addAttribute("books", bookService.findByAuthor(author));
         return "bookList";
     }
+
 }
