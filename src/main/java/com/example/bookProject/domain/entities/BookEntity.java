@@ -1,17 +1,16 @@
-package com.example.demo;
+package com.example.bookProject.domain.entities;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Entity
 @Table(name = "book")
-@NoArgsConstructor
-@Getter
-@Setter
-class Book {
+public class BookEntity {
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.AUTO)

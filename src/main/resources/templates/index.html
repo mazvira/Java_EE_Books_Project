@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html;" charset="UTF-8">
+    <title>Books</title>
+    <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.4.1.min.js"></script>
+</head>
+<body>
+
+<h3>Create book</h3>
+
+<form id="addBook" action="/add-book" method="post">
+    Title of the book: <input name="title">
+    <br/>
+    ISBN: <input type="text" name="isbn">
+    <br/>
+    Author: <input type="text" name="author">
+    <br/>
+    <button type="submit">Add book</button>
+</form>
+
+<h3>Search by title or ISBN</h3>
+<form id="searchForm">
+    <input type="text" name="titleOrIsbn"/>
+    <input type="submit" value="Search"/>
+</form>
+
+<h3>All books</h3>
+<div>
+    <button id="getBooks">Get all books</button>
+    <table>
+        <thead>
+        <th>id</th>
+        <th>isbn</th>
+        <th>title</th>
+        <th>author</th>
+        </thead>
+        <tbody id="booksTable">
+        </tbody>
+    </table>
+</div>
+<script>
+    $(function () {
+
+        $(document).ready(function () {
+            getBooksList();
+        });
+
+        $('#addBook').submit(function (e) {
+            e.preventDefault();
+
+            $.ajax({
+                type: 'POST',
+                url: '/add-book',
+                dataType: 'json',
+                data: JSON.stringify({
+                    title: $(this).find('[name=title]').val(),
+                    isbn: $(this).find('[name=isbn]').val(),
+                    author: $(this).find('[name=author]').val()
+                }),
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader('Content-Type', 'application/json')
+                },
+                success: function (book) {
+                    addBookToTable(book);
+                }
+            });
+        });
+
+        $('#searchForm').submit(function (e) {
+            e.preventDefault();
+
+            $.ajax({
+                type: 'GET',
+                url: '/books-list',
+                dataType: 'json',
+                data: {
+                    titleOrIsbn: $(this).find('[name=titleOrIsbn]').val()
+                },
+                success: function (response) {
+                    fillBooksTable(response);
+                }
+            });
+        });
+
+        $('#getBooks').click(function () {
+            getBooksList();
+        });
+    });
+
+    function addBookToTable(book) {
+        let $books = $('#booksTable');
+        $books.append('<tr><td>' + book.id + '</td><td>' + book.isbn + '</td><td>' + book.title + '</td><td>' + book.author + '</td></tr>');
+    }
+
+    function fillBooksTable(response) {
+        let $books = $('#booksTable');
+        $books.empty();
+        response.forEach(function (book) {
+            addBookToTable(book);
+        })
+    }
+
+    function getBooksList() {
+        $.ajax({
+            type: 'GET',
+            url: '/books-list',
+            success: function (response) {
+                fillBooksTable(response);
+            }
+        });
+    }
+</script>
+</body>
+</html>

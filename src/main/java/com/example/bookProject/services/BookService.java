@@ -1,5 +1,7 @@
-package com.example.demo;
+package com.example.bookProject.services;
 
+import com.example.bookProject.domain.entities.BookEntity;
+import com.example.bookProject.repositories.BookRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,8 +14,8 @@ public class BookService {
     private final BookRepository bookRepository;
 
     @Transactional
-    public Book saveBook(String isbn, String title, String author) {
-        Book book = new Book();
+    public BookEntity saveBook(String isbn, String title, String author) {
+        BookEntity book = new BookEntity();
         book.setIsbn(isbn);
         book.setTitle(title);
         book.setAuthor(author);
@@ -21,22 +23,22 @@ public class BookService {
     }
 
     @Transactional
-    public List<Book> findAllBooks() {
+    public List<BookEntity> findAllBooks() {
         return bookRepository.findAll();
     }
 
     @Transactional
-    public Book findById(Integer id) {
+    public BookEntity findById(Integer id) {
         return bookRepository.findById(id).orElse(null);
     }
 
     @Transactional
-    public List<Book> findByAuthor(String author) {
+    public List<BookEntity> findByAuthor(String author) {
         return bookRepository.findAllByAuthor(author);
     }
 
     @Transactional
-    public List<Book> findByTitleOrIsbn(String title, String isbn) {
-        return bookRepository.findAllWhereTitleLikeOrIsbnLike('%' + title + '%', '%' + isbn + '%');
+    public List<BookEntity> findByTitleOrIsbn(String titleOrIsbn) {
+        return bookRepository.findAllWhereTitleLikeOrIsbnLike('%' + titleOrIsbn + '%');
     }
 }
