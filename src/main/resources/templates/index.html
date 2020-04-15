@@ -7,17 +7,29 @@
 </head>
 <body>
 
-<h3>Create book</h3>
+<div th:if="${#authorization.expression('!isAuthenticated()')}">
+    <h4>Please register or login if you have already account.</h4>
+    <button id="login" th:if="${#authorization.expression('!isAuthenticated()')}">Login</button>
+    <button id="register" th:if="${#authorization.expression('!isAuthenticated()')}">Register</button>
+</div>
 
-<form id="addBook" action="/add-book" method="post">
-    Title of the book: <input name="title">
-    <br/>
-    ISBN: <input type="text" name="isbn">
-    <br/>
-    Author: <input type="text" name="author">
-    <br/>
-    <button type="submit">Add book</button>
-</form>
+<div th:if="${#authorization.expression('isAuthenticated()')}">
+    <button id="logout">Logout</button>
+</div>
+
+<div th:if="${#authorization.expression('hasAuthority(''ADMIN'')')}">
+    <h3>Create book</h3>
+
+    <form id="addBook" action="/add-book" method="post">
+        Title of the book: <input name="title">
+        <br/>
+        ISBN: <input type="text" name="isbn">
+        <br/>
+        Author: <input type="text" name="author">
+        <br/>
+        <button type="submit">Add book</button>
+    </form>
+</div>
 
 <h3>Search by title or ISBN</h3>
 <form id="searchForm">
@@ -28,6 +40,7 @@
 <h3>All books</h3>
 <div>
     <button id="getBooks">Get all books</button>
+    <button id="getFavoriteBooks" th:if="${#authorization.expression('hasAuthority(''USER'')')}">Show favorite books</button>
     <table>
         <thead>
         <th>id</th>
@@ -44,6 +57,26 @@
 
         $(document).ready(function () {
             getBooksList();
+        });
+
+        $('#login').click(function () {
+            appendToUrl("login");
+        });
+
+        $('#register').click(function () {
+            appendToUrl("register");
+        });
+
+        $('#logout').click(function () {
+            appendToUrl("logout");
+        });
+
+        $('#getBooks').click(function () {
+            getBooksList();
+        });
+
+        $('#getFavoriteBooks').click(function () {
+            getFavoriteBooksList();
         });
 
         $('#addBook').submit(function (e) {
@@ -82,15 +115,11 @@
                 }
             });
         });
-
-        $('#getBooks').click(function () {
-            getBooksList();
-        });
     });
 
     function addBookToTable(book) {
         let $books = $('#booksTable');
-        $books.append('<tr><td>' + book.id + '</td><td>' + book.isbn + '</td><td>' + book.title + '</td><td>' + book.author + '</td></tr>');
+        $books.append('<tr><td><a href=\"/book/' + book.id + '\">' + book.id + '</a></td><td>' + book.isbn + '</td><td>' + book.title + '</td><td>' + book.author + '</td></tr>');
     }
 
     function fillBooksTable(response) {
@@ -110,6 +139,21 @@
             }
         });
     }
+
+    function getFavoriteBooksList() {
+        $.ajax({
+            type: 'GET',
+            url: '/books/favorite',
+            success: function (response) {
+                fillBooksTable(response);
+            }
+        });
+    }
+
+    function appendToUrl(param) {
+        location.href = location.href + param;
+    }
+
 </script>
 </body>
 </html>

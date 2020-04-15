@@ -3,14 +3,19 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <title>Books</title>
+    <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.4.1.min.js"></script>
+
+    <style type="text/css">
+        .hidden {
+            display: none;
+        }
+
+        .visible {
+            display: block;
+        }
+    </style>
 </head>
 <body>
-
-<h3>Search by title or ISBN</h3>
-<form action="/books" method="get">
-    <input type="text" name="text"/>
-    <input type="submit" value="Search"/>
-</form>
 
 <h3>Books</h3>
 
@@ -27,8 +32,108 @@
         <td th:text="${book.isbn}"></td>
         <td th:text="${book.title}"></td>
         <td th:text="${book.author}"></td>
+        <td th:if="${#authorization.expression('hasAuthority(''USER'')')}">
+            <button class="addToFavoriteBooks visible" onclick="addToFavoriteBooks()">Add to favorite books</button>
+            <button class="deleteFromFavoriteBooks hidden" onclick="deleteFromFavoriteBooks()">Delete
+                from favorite books
+            </button>
+        </td>
     </tr>
     </tbody>
 </table>
+
+<script>
+    let bookId;
+    let bookTitle;
+    let bookAuthor;
+    let bookIsbn;
+
+    $(function () {
+        let pathname = window.location.pathname;
+        bookId = pathname.substring(pathname.lastIndexOf('/') + 1);
+        getBookInfo();
+        setFavoriteButton();
+    });
+
+    function getBookInfo() {
+        $.ajax({
+            type: 'GET',
+            url: '/book-info/' + bookId,
+            success: function (book) {
+                fillBookInfo(book);
+            }
+        });
+    }
+
+    function fillBookInfo(book) {
+        bookIsbn = book.isbn;
+        bookTitle = book.title;
+        bookAuthor = book.author;
+    }
+
+    function setFavoriteButton() {
+        $.ajax({
+            type: 'GET',
+            url: '/books/isFavorite/' + bookId,
+            success: function (res) {
+                if (res) {
+                    $('.addToFavoriteBooks').removeClass('visible').addClass('hidden');
+                    $('.deleteFromFavoriteBooks').removeClass('hidden').addClass('visible');
+                }
+            }
+        });
+    }
+
+    function addToFavoriteBooks() {
+        addToFavorite();
+        $('.addToFavoriteBooks').removeClass('visible').addClass('hidden');
+        $('.deleteFromFavoriteBooks').removeClass('hidden').addClass('visible');
+    }
+
+    function addToFavorite() {
+        $.ajax({
+            type: 'PUT',
+            url: '/books/favorite/add',
+            dataType: 'json',
+            data: JSON.stringify({
+                id: bookId,
+                title: bookTitle,
+                author: bookAuthor,
+                isbn: bookIsbn
+            }),
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader('Content-Type', 'application/json')
+            },
+            success: function (r) {
+            }
+        });
+    }
+
+    function deleteFromFavoriteBooks() {
+        deleteFromFavorite();
+        $('.deleteFromFavoriteBooks').removeClass('visible').addClass('hidden');
+        $('.addToFavoriteBooks').removeClass('hidden').addClass('visible');
+    }
+
+    function deleteFromFavorite() {
+        $.ajax({
+            type: 'DELETE',
+            url: '/books/favorite/delete',
+            dataType: 'json',
+            data: JSON.stringify({
+                id: bookId,
+                title: bookTitle,
+                author: bookAuthor,
+                isbn: bookIsbn
+            }),
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader('Content-Type', 'application/json')
+            },
+            success: function (r) {
+            }
+        });
+    }
+
+</script>
 </body>
 </html>

@@ -27,7 +27,7 @@ public class BookApplication {
             System.out.println(book.getId() + " " + book.getTitle() + " " + book.getIsbn() + " " + book.getAuthor());
         }
 
-        BookEntity foundById = bookService.findById(1);
+        BookEntity foundById = bookService.findById(3);
         System.out.println("Found by Id");
         System.out.println(foundById.getId() + " " + foundById.getTitle() + " " + foundById.getIsbn() + " " + foundById.getAuthor());
 

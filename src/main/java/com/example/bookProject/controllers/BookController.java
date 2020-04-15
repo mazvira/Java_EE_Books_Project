@@ -5,6 +5,7 @@ import com.example.bookProject.dto.BookDTO;
 import com.example.bookProject.services.BookService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -15,13 +16,14 @@ import java.util.List;
 public class BookController {
     private final BookService bookService;
 
-    @RequestMapping(value = "/add-book", method = RequestMethod.POST)
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @PostMapping(value = "/add-book")
     public ResponseEntity<BookDTO> addNewBook(@RequestBody final BookDTO bookDTO) {
         BookEntity book = bookService.saveBook(bookDTO.getIsbn(), bookDTO.getTitle(), bookDTO.getAuthor());
         return ResponseEntity.ok(toBookDTO(book));
     }
 
-    @RequestMapping(value = "/books-list", method = RequestMethod.GET)
+    @GetMapping(value = "/books-list")
     public ResponseEntity<List<BookDTO>> booksList(@RequestParam(name = "titleOrIsbn", required = false) final String titleOrIsbn) {
         List<BookEntity> books;
         if (titleOrIsbn != null) {
@@ -39,7 +41,7 @@ public class BookController {
         return ResponseEntity.notFound().build();
     }
 
-    @RequestMapping(value = "/books/{titleOrIsbn}", method = RequestMethod.GET)
+    @GetMapping(value = "/books/{titleOrIsbn}")
     public ResponseEntity<List<BookDTO>> findByTitleOrIsbn(@PathVariable("titleOrIsbn") final String titleOrIsbn) {
         List<BookEntity> books = bookService.findByTitleOrIsbn(titleOrIsbn);
         if (books != null) {
@@ -54,17 +56,7 @@ public class BookController {
         }
     }
 
-    @RequestMapping(value = "/book/{id}", method = RequestMethod.GET)
-    public ResponseEntity<BookDTO> findById(@PathVariable("id") final Integer id) {
-        BookEntity book = bookService.findById(id);
-        if (book != null) {
-            return ResponseEntity.ok(toBookDTO(book));
-        } else {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
-    @RequestMapping(value = "/booksByAuthor/{author}", method = RequestMethod.GET)
+    @GetMapping(value = "/booksByAuthor/{author}")
     public ResponseEntity<List<BookDTO>> findByAuthor(@PathVariable("author") final String author) {
         List<BookEntity> booksByAuthor = bookService.findByAuthor(author);
         if (booksByAuthor != null) {
@@ -76,7 +68,12 @@ public class BookController {
             });
             return ResponseEntity.ok(booksDTO);
         }
+    }
 
+    @GetMapping("/book-info/{id}")
+    public ResponseEntity<BookDTO> getBookInfo(@PathVariable("id") Integer id) {
+        BookEntity bookEntity = bookService.findById(id);
+        return ResponseEntity.ok(toBookDTO(bookEntity));
     }
 
     public static BookDTO toBookDTO(BookEntity book) {
