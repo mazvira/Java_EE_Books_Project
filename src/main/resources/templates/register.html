@@ -17,8 +17,8 @@
 </div>
 
 <script>
-    $(function() {
-        $('#registerForm').submit(function(e) {
+    $(function () {
+        $('#registerForm').submit(function (e) {
             e.preventDefault();
 
             $.ajax({
@@ -28,18 +28,26 @@
                     login: $(this).find('[name=login]').val(),
                     password: $(this).find('[name=password]').val()
                 }),
-                beforeSend: function(xhr) {
+                beforeSend: function (xhr) {
                     xhr.setRequestHeader('Content-Type', 'application/json')
                 },
-                success: function (r) {
+                success: function (response) {
                     location.href = "/login";
                 },
-                error: function (r) {
-                    $('#errorDiv').text(r.responseText);
+                error: function (response) {
+                    displayErrors(response);
                 }
             });
         });
     });
+
+    function displayErrors(response) {
+        let innerText = "";
+        $.each(response.responseJSON, function (id, mes) {
+            innerText = innerText + mes + "<br>";
+        });
+        $('#errorDiv').html(innerText);
+    }
 </script>
 </body>
 </html>

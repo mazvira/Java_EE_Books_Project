@@ -43,6 +43,15 @@ public class UserService {
                 .build());
     }
 
+    public UserEntity registerAsAdmin(final RegistrationDTO user) {
+
+        return save(UserEntity.builder()
+                .login(user.getLogin())
+                .password(user.getPassword())
+                .permissions(Collections.singletonList(permissionRepository.findByPermission(Permission.ADMIN)))
+                .build());
+    }
+
     public void addToFavorites(final BookEntity book, final String userLogin) {
         Optional<UserEntity> optionalUser = findByLogin(userLogin);
         if (optionalUser.isPresent()) {

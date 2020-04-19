@@ -19,7 +19,7 @@
 
 <div th:if="${#authorization.expression('hasAuthority(''ADMIN'')')}">
     <h3>Create book</h3>
-
+    <div id="errorDiv"></div>
     <form id="addBook" action="/add-book" method="post">
         Title of the book: <input name="title">
         <br/>
@@ -40,7 +40,8 @@
 <h3>All books</h3>
 <div>
     <button id="getBooks">Get all books</button>
-    <button id="getFavoriteBooks" th:if="${#authorization.expression('hasAuthority(''USER'')')}">Show favorite books</button>
+    <button id="getFavoriteBooks" th:if="${#authorization.expression('hasAuthority(''USER'')')}">Show favorite books
+    </button>
     <table>
         <thead>
         <th>id</th>
@@ -96,6 +97,10 @@
                 },
                 success: function (book) {
                     addBookToTable(book);
+                    $("#errorDiv").empty();
+                },
+                error: function (response) {
+                    displayErrors(response);
                 }
             });
         });
@@ -154,6 +159,13 @@
         location.href = location.href + param;
     }
 
+    function displayErrors(response) {
+        let innerText = "";
+        $.each(response.responseJSON, function (id, mes) {
+            innerText = innerText + mes + "<br>";
+        });
+        $('#errorDiv').html(innerText);
+    }
 </script>
 </body>
 </html>
